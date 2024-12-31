@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maxium-scale=1.0, user-scalable=no">
+    <title>Apurator</title>
+    <style>
+        html,
+        #bets,
+        #result {
+            font-family: monospace;
+            font-size: 1.2rem;
+        }
+
+        .label {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .group {
+            margin-bottom: 16px;
+        }
+
+        .input {
+            width: 100%;
+        }
+
+        .bet-result-number {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            padding: 8px;
+            border: 1px solid black;
+            vertical-align: middle;
+            text-align: center;
+            margin: 4px;
+        }
+
+        .match {
+            background-color: green;
+            color: white;
+        }
+
+        .error {
+            color: orangered;
+        }
+
+        #bets {
+            height: 250px;
+            resize: none;
+        }
+    </style>
+    <script>
+        function extractNumbers(str) {
+            if (!str || !str.match(/\d+/g)) {
+                return [];
+            }
+            return str.match(/\d+/g).map(Number);
+        }
+
+        function extractBets(numbers, groupSize, minNumber, maxNumber) {
+            if (numbers.length % groupSize !== 0) {
+                throw new Error("Há números demais ou faltando.")
+            }
+
+            const bets = [];
+            for (let i = 0; i < numbers.length; i += groupSize) {
+                bets.push(numbers.slice(i, i + groupSize));
+            }
+
+            for (let bet of bets) {
+                bet.sort((a, b) => a - b);
+                for (number of bet) {
+                    if (number < minNumber || number > maxNumber) {
+                        throw new Error(`O número ${number} não está entre ${minNumber} e ${maxNumber}.`);
+                    }
+                }
+            }
+            return bets;
+        }
+
+        function renderResult(bets, result) {
+            if (!result) result = [];
+
+            let betResults = []
+
+            for (bet of bets) {
+                let betResult = []
+                for (number of bet) {
+                    let match = result.includes(number) ? "match" : "no-match";
+                    let friendlyNumber = ("" + number).padStart(2, "0");
+                    betResult.push(`<div class="bet-result-number ${match}">${friendlyNumber}</div>`);
+                }
+                betResults.push(`<div class="bet-result">${betResult.join("")}</div>`);
+            }
+
+            return betResults.join("");
+        }
+
+        function evaluate() {
+            document.querySelector("#bets-error").innerHTML = "";
+            document.querySelector("#result-error").innerHTML = "";
+
+            let bets;
+            try {
+                let rawBets = extractNumbers(document.querySelector("#bets").value);
+                bets = extractBets(rawBets, 6, 1, 60);
+            } catch (error) {
+                document.querySelector("#bets-error").innerHTML = error;
+                return;
+            }
+
+            let result;
+            try {
+                let rawResult = extractNumbers(document.querySelector("#result").value);
+                result = extractBets(rawResult, 6, 1, 60);
+                if (result.length > 1) {
+                    throw new Error("Apenas 6 números são permitidos no resultado.");
+                }
+            } catch (error) {
+                document.querySelector("#result-error").innerHTML = error;
+                return;
+            }
+
+            document.querySelector("#bet-results").innerHTML = renderResult(bets, result[0]);
+            saveFields(["bets", "result"]);
+        }
+
+        function loadFields(fields) {
+            for (field of fields) {
+                let value = localStorage.getItem(field);
+                if (value) {
+                    document.querySelector(`#${field}`).value = value;
+                }
+            }
+        }
+
+        function saveFields(fields) {
+            for (field of fields) {
+                let value = document.querySelector(`#${field}`).value;
+                localStorage.setItem(field, value);
+            }
+        }
+
+        function setup() {
+            document.querySelector("#bets").addEventListener("input", evaluate);
+            document.querySelector("#result").addEventListener("input", evaluate);
+            loadFields(["bets", "result"]);
+            evaluate();
+        }
+    </script>
+</head>
+
+<body onload="setup()">
+    <div class="group">
+        <div class="label">Apostas</div>
+        <textarea class="input" id="bets"></textarea>
+        <div class="label error" id="bets-error"></div>
+    </div>
+    <div class="group">
+        <div class="label">Resultado</div>
+        <input class="input" id="result"></textarea>
+        <div class="label error" id="result-error"></div>
+    </div>
+    <div class="group">
+        <div class="label">Apuração</div>
+        <div id="bet-results"></div>
+    </div>
+</body>
+
+</html>
