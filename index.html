@@ -352,7 +352,7 @@
 
         let bets = [];
 
-        loadFromHash();
+        load();
 
         betInput.addEventListener('input', () => {
             validateInput(betInput.value.trim(), 'bet', betValidation);
@@ -367,7 +367,10 @@
             renderResults();
         });
 
-        // Validates input numbers with a specified type and limit.
+        // validateInput takes a string value and validates it as either a
+        // 'bet' or 'result' type. It then updates the displayElement with
+        // a validation message if provided. showSuccess controls whether
+        // a success message is shown for valid inputs.
         function validateInput(value, type = 'bet', displayElement = null, showSuccess = true) {
             if (!value) {
                 if (displayElement) {
@@ -415,7 +418,9 @@
             return numbers.data;
         }
 
-        // Parses numbers from input string.
+        // parseNumbers takes a string of space-separated numbers and returns
+        // an object with either a 'data' array of numbers or an 'error'
+        // message.
         function parseNumbers(str) {
             const parts = str.trim().split(/\s+/);
             const numbers = [];
@@ -454,7 +459,7 @@
 
             bets.push(numbers);
             renderBets();
-            saveToHash();
+            save();
             betInput.value = '';
             betValidation.textContent = '';
             betValidation.classList.remove('error', 'success');
@@ -465,7 +470,7 @@
         function deleteBet(index) {
             bets.splice(index, 1);
             renderBets();
-            saveToHash();
+            save();
             renderResults();
         }
 
@@ -571,17 +576,9 @@
             }
         }
 
-        function saveToHash() {
-            const hashParts = bets.map(bet => bet.join(',')).join('-');
-            window.location.hash = hashParts || '';
-        }
-
-        function loadFromHash() {
-            const hash = window.location.hash.replace('#', '');
-            if (!hash) return;
-
-            const betStrings = hash.split('-');
-            bets = [];
+        function parseBetsFromString(str) {
+            const betsArray = [];
+            const betStrings = str.split('-').filter(s => s);
 
             for (const betStr of betStrings) {
                 const numbers = betStr.split(',').map(n => {
@@ -591,11 +588,30 @@
                 }).filter(n => n !== null);
 
                 if (numbers.length >= 6 && numbers.length <= 20) {
-                    bets.push(numbers.sort((a, b) => a - b));
+                    betsArray.push(numbers.sort((a, b) => a - b));
                 }
             }
 
+            return betsArray;
+        }
+
+        function load() {
+            const hash = window.location.hash.replace('#', '');
+            const stored = localStorage.getItem('apurator_bets');
+
+            if (hash) {
+                bets = parseBetsFromString(hash);
+            } else if (stored) {
+                bets = parseBetsFromString(stored);
+                save(); // Save to update URL hash.
+            }
             renderBets();
+        }
+
+        function save() {
+            const hashParts = bets.map(bet => bet.join(',')).join('-');
+            window.location.hash = hashParts || '';
+            localStorage.setItem('apurator_bets', hashParts || '');
         }
     </script>
 </body>
