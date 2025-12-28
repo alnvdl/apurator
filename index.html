@@ -319,7 +319,7 @@
             <div class="input-group">
                 <label for="betInput">Digite sua aposta:</label>
                 <div class="input-with-button">
-                    <input type="text" id="betInput" placeholder="1 12 23 34 45 56" autocomplete="off">
+                    <input type="text" id="betInput" inputmode="numeric" placeholder="Exemplo: 01 12 23 34 45 56" autocomplete="off">
                     <button type="submit" onclick="addBet()">Adicionar</button>
                 </div>
                 <span class="validation-message" id="betValidation"></span>
@@ -334,7 +334,7 @@
             <h2>🎯 Resultado</h2>
             <div class="input-group result-input">
                 <label for="resultInput">Digite os resultados:</label>
-                <input type="text" id="resultInput" placeholder="5 12 34 45 56 60" autocomplete="off">
+                <input type="text" id="resultInput" inputmode="numeric" placeholder="Exemplo: 05 12 34 45 56 60" autocomplete="off">
                 <span class="validation-message" id="resultValidation"></span>
             </div>
 
@@ -354,7 +354,8 @@
 
         load();
 
-        betInput.addEventListener('input', () => {
+        betInput.addEventListener('input', (e) => {
+            formatInput(betInput);
             validateInput(betInput.value.trim(), 'bet', betValidation);
         });
         betInput.addEventListener('keypress', (e) => {
@@ -363,9 +364,29 @@
             }
         });
         resultInput.addEventListener('input', () => {
+            formatInput(resultInput);
             validateInput(resultInput.value.trim(), 'result', resultValidation, false);
             renderResults();
         });
+
+        // formatInput handles automatic spacing after two digits are entered.
+        function formatInput(inputElement) {
+            let value = inputElement.value;
+
+            // Remove all non-digit characters (keep only digits).
+            const digitsOnly = value.replace(/[^0-9]/g, '');
+
+            // Group digits into pairs with spaces (no padding during input).
+            const formatted = [];
+            for (let i = 0; i < digitsOnly.length; i += 2) {
+                const pair = digitsOnly.substring(i, i + 2);
+                formatted.push(pair);
+            }
+
+            // Reconstruct the value with spaces between numbers.
+            const newValue = formatted.join(' ');
+            inputElement.value = newValue;
+        }
 
         // validateInput takes a string value and validates it as either a
         // 'bet' or 'result' type. It then updates the displayElement with
@@ -420,7 +441,7 @@
 
         // parseNumbers takes a string of space-separated numbers and returns
         // an object with either a 'data' array of numbers or an 'error'
-        // message.
+        // message. Numbers are stored with leading zeros for single digits.
         function parseNumbers(str) {
             const parts = str.trim().split(/\s+/);
             const numbers = [];
@@ -446,6 +467,11 @@
             }
 
             return {data: numbers.sort((a, b) => a - b)};
+        }
+
+        // formatNumberForDisplay converts a number to a string with leading 0 if single digit.
+        function formatNumber(num) {
+            return num < 10 ? '0' + num : String(num);
         }
 
         // Adds a new bet.
@@ -482,7 +508,7 @@
             }
 
             betsList.innerHTML = bets.map((bet, index) => {
-                const numbersHtml = bet.map(num => `<span class="number">${num}</span>`).join('');
+                const numbersHtml = bet.map(num => `<span class="number">${formatNumber(num)}</span>`).join('');
                 return `
                     <div class="bet-item">
                         <div class="bet-numbers">${numbersHtml}</div>
@@ -609,7 +635,7 @@
         }
 
         function save() {
-            const hashParts = bets.map(bet => bet.join(',')).join('-');
+            const hashParts = bets.map(bet => bet.map(formatNumber).join(',')).join('-');
             window.location.hash = hashParts || '';
             localStorage.setItem('apurator_bets', hashParts || '');
         }
