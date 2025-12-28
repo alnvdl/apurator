@@ -3,174 +3,595 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maxium-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apurator</title>
     <style>
-        html {
-            font-family: monospace;
-            max-width: 95%;
-
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        #bets, #result {
-            font-size: 1.2rem;
+        body {
+            font-family: system-ui, sans-serif;
+            background: linear-gradient(135deg, #eee 0%, #ccc 100%);
+            min-height: 100vh;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .label {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-
-        .group {
-            margin-bottom: 16px;
-        }
-
-        .input {
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            padding: 32px;
+            max-width: 600px;
             width: 100%;
         }
 
-        .bet-result-number {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            line-height: 24px;
-            padding: 8px;
-            border: 1px solid black;
-            vertical-align: middle;
+        h1 {
+            color: #1a202c;
+            font-size: 28px;
+            margin-bottom: 8px;
             text-align: center;
-            margin: 4px;
         }
 
-        .match {
-            background-color: green;
+        .subtitle {
+            color: #718096;
+            text-align: center;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: #2d3748;
+            font-size: 18px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .input-with-button input {
+            flex: 1;
+        }
+
+        button[type="submit"] {
+            padding: 12px 24px;
+            background: #667eea;
             color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
-        .error {
-            color: orangered;
+        button[type="submit"]:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
         }
 
-        #bets {
-            height: 250px;
-            resize: none;
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        label {
+            display: block;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .validation-message {
+            font-size: 13px;
+            margin-top: 6px;
+            min-height: 20px;
+            display: block;
+        }
+
+        .validation-message.error {
+            color: #e53e3e;
+        }
+
+        .validation-message.success {
+            color: #38a169;
+        }
+
+        .bets-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bet-item {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            word-break: break-word;
+        }
+
+        .bet-numbers {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #2d3748;
+            min-width: 200px;
+        }
+
+        .bet-numbers .number {
+            display: inline-block;
+            padding: 4px 8px;
+            margin: 2px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #cbd5e0;
+        }
+
+        .bet-numbers .number.matched {
+            background: #c6f6d5;
+            color: #22543d;
+            border-color: #9ae6b4;
+            font-weight: 600;
+        }
+
+        .delete-btn {
+            padding: 8px 12px;
+            background: #feb2b2;
+            color: #742a2a;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .delete-btn:hover {
+            background: #fc8181;
+            transform: translateY(-2px);
+        }
+
+        .delete-btn:active {
+            transform: translateY(0);
+        }
+
+        .empty-message {
+            color: #a0aec0;
+            font-style: italic;
+            text-align: center;
+            padding: 24px 16px;
+            font-size: 14px;
+        }
+
+        .result-messages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .result-message {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #38a169;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .result-message.no-match {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left-color: #e53e3e;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .result-message .bet-label {
+            float: right;
+            font-size: 12px;
+            font-style: italic;
+            color: #22543d;
+            margin-top: 8px;
+            font-weight: 400;
+        }
+
+        .result-message.no-match .bet-label {
+            color: #742a2a;
+        }
+
+        .result-messages-container.hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                padding: 20px;
+                border-radius: 0;
+                max-width: 100%;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 16px;
+            }
+
+            .input-with-button {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .input-with-button input {
+                flex: 1;
+            }
+
+            button[type="submit"] {
+                width: 100%;
+            }
+
+            .bet-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .delete-btn {
+                align-self: flex-end;
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .result-message {
+                font-size: 24px;
+            }
         }
     </style>
-    <script>
-        function extractNumbers(str) {
-            if (!str || !str.match(/\d+/g)) {
-                return [];
-            }
-            return str.match(/\d+/g).map(Number);
-        }
-
-        function extractBets(numbers, groupSize, minNumber, maxNumber) {
-            if (numbers.length % groupSize !== 0) {
-                throw new Error("Há números demais ou faltando.")
-            }
-
-            const bets = [];
-            for (let i = 0; i < numbers.length; i += groupSize) {
-                bets.push(numbers.slice(i, i + groupSize));
-            }
-
-            for (let bet of bets) {
-                bet.sort((a, b) => a - b);
-                for (number of bet) {
-                    if (number < minNumber || number > maxNumber) {
-                        throw new Error(`O número ${number} não está entre ${minNumber} e ${maxNumber}.`);
-                    }
-                }
-            }
-            return bets;
-        }
-
-        function renderResult(bets, result) {
-            if (!result) result = [];
-
-            let betResults = []
-
-            for (bet of bets) {
-                let betResult = []
-                for (number of bet) {
-                    let match = result.includes(number) ? "match" : "no-match";
-                    let friendlyNumber = ("" + number).padStart(2, "0");
-                    betResult.push(`<div class="bet-result-number ${match}">${friendlyNumber}</div>`);
-                }
-                betResults.push(`<div class="bet-result">${betResult.join("")}</div>`);
-            }
-
-            return betResults.join("");
-        }
-
-        function evaluate() {
-            document.querySelector("#bets-error").innerHTML = "";
-            document.querySelector("#result-error").innerHTML = "";
-
-            let bets;
-            try {
-                let rawBets = extractNumbers(document.querySelector("#bets").value);
-                bets = extractBets(rawBets, 6, 1, 60);
-            } catch (error) {
-                document.querySelector("#bets-error").innerHTML = error;
-                return;
-            }
-
-            let result;
-            try {
-                let rawResult = extractNumbers(document.querySelector("#result").value);
-                result = extractBets(rawResult, 6, 1, 60);
-                if (result.length > 1) {
-                    throw new Error("Apenas 6 números são permitidos no resultado.");
-                }
-            } catch (error) {
-                document.querySelector("#result-error").innerHTML = error;
-                return;
-            }
-
-            document.querySelector("#bet-results").innerHTML = renderResult(bets, result[0]);
-            saveFields(["bets", "result"]);
-        }
-
-        function loadFields(fields) {
-            for (field of fields) {
-                let value = localStorage.getItem(field);
-                if (value) {
-                    document.querySelector(`#${field}`).value = value;
-                }
-            }
-        }
-
-        function saveFields(fields) {
-            for (field of fields) {
-                let value = document.querySelector(`#${field}`).value;
-                localStorage.setItem(field, value);
-            }
-        }
-
-        function setup() {
-            document.querySelector("#bets").addEventListener("input", evaluate);
-            document.querySelector("#result").addEventListener("input", evaluate);
-            loadFields(["bets", "result"]);
-            evaluate();
-        }
-    </script>
 </head>
 
-<body onload="setup()">
-    <div class="group">
-        <div class="label">Apostas</div>
-        <textarea class="input" id="bets"></textarea>
-        <div class="label error" id="bets-error"></div>
+<body>
+    <div class="container">
+        <h1>🎰 Apurator</h1>
+        <p class="subtitle">Verifique suas apostas da Mega Sena</p>
+
+        <section>
+            <h2>📝 Apostas</h2>
+            <div class="input-group">
+                <label for="betInput">Digite sua aposta:</label>
+                <div class="input-with-button">
+                    <input type="text" id="betInput" placeholder="1 12 23 34 45 56" autocomplete="off">
+                    <button type="submit" onclick="addBet()">Adicionar</button>
+                </div>
+                <span class="validation-message" id="betValidation"></span>
+            </div>
+
+            <div class="bets-list" id="betsList">
+                <div class="empty-message">Sem apostas. Adicione uma acima!</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>🎯 Resultado</h2>
+            <div class="input-group result-input">
+                <label for="resultInput">Digite os resultados:</label>
+                <input type="text" id="resultInput" placeholder="5 12 34 45 56 60" autocomplete="off">
+                <span class="validation-message" id="resultValidation"></span>
+            </div>
+
+            <div class="result-messages-container hidden" id="resultMessage"></div>
+        </section>
     </div>
-    <div class="group">
-        <div class="label">Resultado</div>
-        <input class="input" id="result"></textarea>
-        <div class="label error" id="result-error"></div>
-    </div>
-    <div class="group">
-        <div class="label">Apuração</div>
-        <div id="bet-results"></div>
-    </div>
+
+    <script>
+        const betInput = document.getElementById('betInput');
+        const betValidation = document.getElementById('betValidation');
+        const betsList = document.getElementById('betsList');
+        const resultInput = document.getElementById('resultInput');
+        const resultValidation = document.getElementById('resultValidation');
+        const resultMessage = document.getElementById('resultMessage');
+
+        let bets = [];
+
+        loadFromHash();
+
+        betInput.addEventListener('input', () => {
+            validateInput(betInput.value.trim(), 'bet', betValidation);
+        });
+        betInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addBet();
+            }
+        });
+        resultInput.addEventListener('input', () => {
+            validateInput(resultInput.value.trim(), 'result', resultValidation, false);
+            renderResults();
+        });
+
+        // Validates input numbers with a specified type and limit.
+        function validateInput(value, type = 'bet', displayElement = null, showSuccess = true) {
+            if (!value) {
+                if (displayElement) {
+                    displayElement.textContent = '';
+                    displayElement.classList.remove('error', 'success');
+                }
+                return null;
+            }
+
+            const numbers = parseNumbers(value);
+            const minCount = type === 'bet' ? 6 : 6;
+            const maxCount = type === 'bet' ? 20 : 6;
+            const typeLabel = type === 'bet' ? 'aposta' : 'resultado';
+
+            if (numbers.error) {
+                if (displayElement) {
+                    displayElement.textContent = numbers.error;
+                    displayElement.classList.remove('success');
+                    displayElement.classList.add('error');
+                }
+                return null;
+            }
+
+            const count = numbers.data.length;
+            if (count < minCount || count > maxCount) {
+                const rangeTxt = type === 'bet' ? 'entre 6 e 20' : 'exatamente 6';
+                if (displayElement) {
+                    displayElement.textContent = `Inválido: ${count} número(s) (${typeLabel} deve ter ${rangeTxt} números)`;
+                    displayElement.classList.remove('success');
+                    displayElement.classList.add('error');
+                }
+                return null;
+            }
+
+            if (displayElement) {
+                if (showSuccess) {
+                    displayElement.textContent = `✓ Válido: ${typeLabel} com ${count} números`;
+                    displayElement.classList.remove('error');
+                    displayElement.classList.add('success');
+                } else {
+                    displayElement.textContent = '';
+                    displayElement.classList.remove('error', 'success');
+                }
+            }
+            return numbers.data;
+        }
+
+        // Parses numbers from input string.
+        function parseNumbers(str) {
+            const parts = str.trim().split(/\s+/);
+            const numbers = [];
+
+            for (const part of parts) {
+                if (!part) continue;
+
+                const num = parseInt(part, 10);
+
+                if (isNaN(num)) {
+                    return {error: `Caracter inválido: "${part}"`};
+                }
+
+                if (num < 1 || num > 60) {
+                    return {error: `Número inválido: ${num} (deve estar entre 1 e 60)`};
+                }
+
+                if (numbers.includes(num)) {
+                    return {error: `Número duplicado: ${num}`};
+                }
+
+                numbers.push(num);
+            }
+
+            return {data: numbers.sort((a, b) => a - b)};
+        }
+
+        // Adds a new bet.
+        function addBet() {
+            const value = betInput.value.trim();
+            const numbers = validateInput(value, 'bet', betValidation);
+
+            if (!numbers) {
+                return;
+            }
+
+            bets.push(numbers);
+            renderBets();
+            saveToHash();
+            betInput.value = '';
+            betValidation.textContent = '';
+            betValidation.classList.remove('error', 'success');
+            renderResults();
+        }
+
+        // Deletes a bet by index.
+        function deleteBet(index) {
+            bets.splice(index, 1);
+            renderBets();
+            saveToHash();
+            renderResults();
+        }
+
+        // Updates the display of all bets.
+        function renderBets() {
+            if (bets.length === 0) {
+                betsList.innerHTML = '<div class="empty-message">Sem apostas. Adicione uma acima!</div>';
+                return;
+            }
+
+            betsList.innerHTML = bets.map((bet, index) => {
+                const numbersHtml = bet.map(num => `<span class="number">${num}</span>`).join('');
+                return `
+                    <div class="bet-item">
+                        <div class="bet-numbers">${numbersHtml}</div>
+                        <button class="delete-btn" onclick="deleteBet(${index})">Remover</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Gets result numbers from input.
+        function getResultNumbers() {
+            const value = resultInput.value.trim();
+            if (!value) return null;
+
+            const numbers = validateInput(value, 'result');
+            return numbers;
+        }
+
+        // Updates the results display.
+        function renderResults() {
+            const resultNumbers = getResultNumbers();
+
+            // If there's an error (validation failed), clear results.
+            if (resultNumbers === null) {
+                resultMessage.classList.add('hidden');
+                const betItems = document.querySelectorAll('.bet-item');
+                betItems.forEach((item, index) => {
+                    const numberSpans = item.querySelectorAll('.bet-numbers .number');
+                    numberSpans.forEach((span) => {
+                        span.classList.remove('matched');
+                    });
+                });
+                return;
+            }
+
+            // Update each bet display with highlighted matched numbers
+            const betItems = document.querySelectorAll('.bet-item');
+            betItems.forEach((item, index) => {
+                const bet = bets[index];
+                const numberSpans = item.querySelectorAll('.bet-numbers .number');
+
+                numberSpans.forEach((span, numIndex) => {
+                    const num = bet[numIndex];
+                    if (resultNumbers.includes(num)) {
+                        span.classList.add('matched');
+                    } else {
+                        span.classList.remove('matched');
+                    }
+                });
+            });
+
+            // Update result message
+            if (resultNumbers.length !== 6) {
+                resultMessage.classList.add('hidden');
+                return;
+            }
+
+            // Find all bets with matches
+            const winningBets = [];
+            bets.forEach((bet, index) => {
+                const matches = bet.filter(num => resultNumbers.includes(num)).length;
+                if (matches >= 4) {
+                    winningBets.push({
+                        index: index + 1,
+                        matches: matches
+                    });
+                }
+            });
+
+            if (winningBets.length === 0) {
+                // No winning bets - single message
+                resultMessage.classList.remove('hidden');
+                resultMessage.innerHTML = '<div class="result-message no-match">😢 Não foi desta vez</div>';
+            } else {
+                // Display each winning bet
+                resultMessage.classList.remove('hidden');
+                resultMessage.innerHTML = winningBets.map(win => {
+                    let emoji, text;
+                    if (win.matches === 6) {
+                        emoji = '🤑';
+                        text = 'Mega Sena!';
+                    } else if (win.matches === 5) {
+                        emoji = '💰';
+                        text = 'Quina!';
+                    } else {
+                        emoji = '💸';
+                        text = 'Quadra!';
+                    }
+                    return `<div class="result-message">${emoji} ${text}<span class="bet-label">Aposta ${win.index}</span></div>`;
+                }).join('');
+            }
+        }
+
+        function saveToHash() {
+            const hashParts = bets.map(bet => bet.join(',')).join('-');
+            window.location.hash = hashParts || '';
+        }
+
+        function loadFromHash() {
+            const hash = window.location.hash.replace('#', '');
+            if (!hash) return;
+
+            const betStrings = hash.split('-');
+            bets = [];
+
+            for (const betStr of betStrings) {
+                const numbers = betStr.split(',').map(n => {
+                    const num = parseInt(n, 10);
+                    if (isNaN(num) || num < 1 || num > 60) return null;
+                    return num;
+                }).filter(n => n !== null);
+
+                if (numbers.length >= 6 && numbers.length <= 20) {
+                    bets.push(numbers.sort((a, b) => a - b));
+                }
+            }
+
+            renderBets();
+        }
+    </script>
 </body>
 
 </html>
