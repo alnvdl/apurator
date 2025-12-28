@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Apurator</title>
+    <title>💸 Apurator</title>
     <style>
         * {
             margin: 0;
@@ -82,6 +82,7 @@
             font-weight: 600;
             transition: all 0.3s ease;
             white-space: nowrap;
+            align-self: normal;
         }
 
         button[type="submit"]:hover {
@@ -286,14 +287,19 @@
             }
 
             .bet-item {
-                flex-direction: column;
-                align-items: flex-start;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+
+            .bet-numbers {
+                flex-basis: auto;
+                min-width: auto;
             }
 
             .delete-btn {
-                align-self: flex-end;
                 padding: 6px 10px;
                 font-size: 12px;
+                margin-left: auto;
             }
 
             .result-message {
@@ -305,7 +311,7 @@
 
 <body>
     <div class="container">
-        <h1>🎰 Apurator</h1>
+        <h1>💸 Apurator</h1>
         <p class="subtitle">Verifique suas apostas da Mega Sena</p>
 
         <section>
