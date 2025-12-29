@@ -229,6 +229,7 @@
             font-style: italic;
             text-align: center;
             padding: 17px 12px;
+            font-size: var(--font-size-small);
         }
 
         .result-messages-container {
@@ -273,6 +274,7 @@
         @media (max-width: 600px) {
             body {
                 padding: 0;
+                background: var(--background2);
             }
 
             .container {
@@ -411,7 +413,7 @@
 
             if (numbers.error) {
                 if (displayElement) {
-                    displayElement.textContent = "✘ " + numbers.error;
+                    displayElement.textContent = "✗ " + numbers.error;
                     displayElement.classList.remove('success');
                     displayElement.classList.add('error');
                 }
@@ -422,7 +424,7 @@
             if (count < minCount || count > maxCount) {
                 const rangeTxt = type === 'bet' ? 'entre 6 e 20' : 'exatamente 6';
                 if (displayElement) {
-                    displayElement.textContent = `✘ ${count} número(s) (${typeLabel} deve ter ${rangeTxt} números)`;
+                    displayElement.textContent = `✗ ${count} número(s) (${typeLabel} deve ter ${rangeTxt} números)`;
                     displayElement.classList.remove('success');
                     displayElement.classList.add('error');
                 }
@@ -431,7 +433,7 @@
 
             if (displayElement) {
                 if (showSuccess) {
-                    displayElement.textContent = `✔ ${typeLabel[0].toUpperCase()}${typeLabel.slice(1)} com ${count} números`;
+                    displayElement.textContent = `✓ ${typeLabel[0].toUpperCase()}${typeLabel.slice(1)} com ${count} números`;
                     displayElement.classList.remove('error');
                     displayElement.classList.add('success');
                 } else {
